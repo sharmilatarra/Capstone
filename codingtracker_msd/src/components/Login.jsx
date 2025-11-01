@@ -37,7 +37,7 @@ function Login({ setToken }) {
   return (
     <div className="auth-container">
       <div className="auth-box">
-        <img src="logo.png" alt="Coding Tracker" className="logo" />
+        <img src="14.png" alt="Coding Tracker" className="logo" />
         <h2>Login</h2>
 
         <form onSubmit={handleLogin}>

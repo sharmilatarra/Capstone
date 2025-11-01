@@ -50,7 +50,7 @@ export default function CodeChef() {
     if (!username.trim()) return alert("Please enter username");
     setLoading(true);
     try {
-      await axios.post(
+      const response = await axios.post(
         "http://localhost:3030/codechef",
         {
           username,
@@ -60,10 +60,13 @@ export default function CodeChef() {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      console.log("✅ Save successful:", response.data);
       alert("✅ Stats saved successfully!");
     } catch (err) {
-      console.error(err.response?.data || err.message);
-      alert("❌ Failed to save stats.");
+      console.error("❌ Full error:", err);
+      console.error("❌ Response data:", err.response?.data);
+      console.error("❌ Status:", err.response?.status);
+      alert(`❌ Failed to save stats: ${err.response?.data?.message || err.message}`);
     } finally {
       setLoading(false);
     }

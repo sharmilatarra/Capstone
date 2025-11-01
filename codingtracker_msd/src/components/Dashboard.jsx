@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../index.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell } from "@fortawesome/free-solid-svg-icons";
+import { faBell, faSearch } from "@fortawesome/free-solid-svg-icons";
 
-// 🌐 Platform logos
 const platformLogos = {
   leetcode: "https://upload.wikimedia.org/wikipedia/commons/1/19/LeetCode_logo_black.png",
   codeforces: "https://sta.codeforces.com/s/86931/images/codeforces-logo-with-telegram.png",
@@ -12,7 +11,6 @@ const platformLogos = {
   hackerrank: "https://upload.wikimedia.org/wikipedia/commons/6/65/HackerRank_logo.png",
 };
 
-// 💬 Motivational quotes
 const quotes = [
   "Code is like humor. When you have to explain it, it’s bad.",
   "First, solve the problem. Then, write the code.",
@@ -21,7 +19,6 @@ const quotes = [
   "Simplicity is the soul of efficiency.",
 ];
 
-// 🧩 Platforms list
 const platforms = ["leetcode", "codeforces", "codechef", "hackerrank"];
 
 const Dashboard = () => {
@@ -34,6 +31,7 @@ const Dashboard = () => {
   });
   const [platformStats, setPlatformStats] = useState({});
   const [dailyStatus, setDailyStatus] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
   const toggleSideNav = () => setSideOpen(!sideOpen);
@@ -44,11 +42,9 @@ const Dashboard = () => {
     navigate("/login");
   };
 
-  // 🧠 Load user data from JWT token
   const loadUserData = () => {
     const token = localStorage.getItem("token");
     if (!token) return navigate("/login");
-
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       setUser({
@@ -63,10 +59,8 @@ const Dashboard = () => {
     }
   };
 
-  // ⚙️ Load stats + daily status
   useEffect(() => {
     loadUserData();
-
     const todayKey = `dailyStatus-${new Date().toDateString()}`;
     const savedStatus = JSON.parse(localStorage.getItem(todayKey)) || {};
     setDailyStatus(savedStatus);
@@ -101,16 +95,17 @@ const Dashboard = () => {
   }, [navigate]);
 
   const allDone = platforms.every((p) => dailyStatus[p]);
+  const filteredPlatforms = platforms.filter((p) =>
+    p.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
-      {/* 🧭 Top Navbar */}
+      {/* 🔝 Top Navbar */}
       <nav className="top-nav">
         <div className="nav-left">
           <div className="hamburger" onClick={toggleSideNav}>
-            <div></div>
-            <div></div>
-            <div></div>
+            <div></div><div></div><div></div>
           </div>
           <div className="logo">
             <img src="14.png" alt="Logo" />
@@ -118,20 +113,17 @@ const Dashboard = () => {
         </div>
 
         <div className="nav-right">
-          <div className="daily-bell-wrapper">
-            <FontAwesomeIcon
-              icon={faBell}
-              className="daily-bell"
-              onClick={() => navigate("/daily-activity")}
-              style={{
-                cursor: "pointer",
-                fontSize: "24px",
-                color: allDone ? "#00ff7f" : "#0ca50cff",
-              }}
-            />
-          </div>
+          <FontAwesomeIcon
+            icon={faBell}
+            className="daily-bell"
+            onClick={() => navigate("/daily-activity")}
+            style={{
+              cursor: "pointer",
+              fontSize: "18px",
+              color: allDone ? "#00ff7f" : "#0ca50cff",
+            }}
+          />
 
-          {/* 👤 User Info */}
           <div
             className="user-profile"
             onClick={() => navigate("/profilechange")}
@@ -139,14 +131,8 @@ const Dashboard = () => {
           >
             <img
               src={user.profileImage}
-              alt="User Profile"
-              style={{
-                width: "40px",
-                height: "40px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                border: "2px solid #00b14f",
-              }}
+              alt="User"
+              className="profile-img"
             />
             <div className="user-info">
               <span className="username">{user.username.toUpperCase()}</span>
@@ -154,7 +140,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <button className="back-btn" onClick={handleLogout}>
+          <button className="logout-btn small" onClick={handleLogout}>
             Logout
           </button>
         </div>
@@ -173,50 +159,54 @@ const Dashboard = () => {
         </ul>
       </div>
 
-      {/* 🧱 Main Dashboard Content */}
-      <div className={`dashboard-container ${sideOpen ? "shifted" : ""}`}>
-        <div className="dashboard-left">
-          <h1>{user.username.toUpperCase()}</h1>
-          <p>
-            <i>{randomQuote}</i>
-          </p>
+      {/* 🌟 Main Section */}
+      <div className={`dashboard-main ${sideOpen ? "shifted" : ""}`}>
+        <h1 className="welcome-text">Hello, {user.username.toUpperCase()} 👋</h1>
 
-          <div className="platform-grid">
-            {platforms.map((platform) => {
-              const stats =
-                platformStats[platform] || { username: "Not set", totalSolved: 0 };
-              return (
-                <div
-                  key={platform}
-                  className="platform-card"
-                  onClick={() => navigate(`/${platform}`)}
-                >
-                  <h2>
-                    <img
-                      src={platformLogos[platform]}
-                      alt={platform}
-                      className="platform-logo-small"
-                    />
-                    {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                  </h2>
-                  <p>Username: {stats.username}</p>
-                  <p>Total Solved: {stats.totalSolved}</p>
-                </div>
-              );
-            })}
-
-            {/* ➕ Add new platform */}
-            <div
-              className="platform-card add-card"
-              onClick={() => alert("Feature to add new platform coming soon!")}
-            >
-              <h2>➕ Add Platform</h2>
-            </div>
-          </div>
+        <div className="search-center">
+          <FontAwesomeIcon icon={faSearch} className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search platform..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
 
-        <div className="dashboard-right">
-          <img src="12.png" alt="Coding Illustration" />
+        <p className="quote-text">
+          <i>{randomQuote}</i>
+        </p>
+
+        <div className="platform-grid">
+          {filteredPlatforms.map((platform) => {
+            const stats =
+              platformStats[platform] || { username: "Not set", totalSolved: 0 };
+            return (
+              <div
+                key={platform}
+                className="platform-card"
+                onClick={() => navigate(`/${platform}`)}
+              >
+                <h2>
+                  <img
+                    src={platformLogos[platform]}
+                    alt={platform}
+                    className="platform-logo-small"
+                  />
+                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                </h2>
+                <p>Username: {stats.username}</p>
+                <p>Total Solved: {stats.totalSolved}</p>
+              </div>
+            );
+          })}
+
+          <div
+            className="platform-card add-card"
+            onClick={() => alert("Feature to add new platform coming soon!")}
+          >
+            <h2>➕ Add Platform</h2>
+          </div>
         </div>
       </div>
     </>
